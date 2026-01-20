@@ -1,141 +1,91 @@
-import {
-  Navbar as HeroUINavbar,
-  NavbarContent,
-  NavbarMenu,
-  NavbarMenuToggle,
-  NavbarBrand,
-  NavbarItem,
-  NavbarMenuItem,
-} from "@heroui/navbar";
-import { Button } from "@heroui/button";
-import { Kbd } from "@heroui/kbd";
-import { Link } from "@heroui/link";
-import { Input } from "@heroui/input";
-import { link as linkStyles } from "@heroui/theme";
-import NextLink from "next/link";
-import clsx from "clsx";
+'use client'
 
-import { siteConfig } from "@/config/site";
-import { ThemeSwitch } from "@/components/theme-switch";
 import {
-  TwitterIcon,
-  GithubIcon,
-  DiscordIcon,
-  HeartFilledIcon,
-  SearchIcon,
-  Logo,
-} from "@/components/icons";
+  Navbar as HeroNavbar,
+  NavbarBrand,
+  NavbarContent,
+  NavbarItem
+} from '@heroui/navbar'
+import { Link } from '@heroui/link'
+import { Button } from '@heroui/button'
+import { Badge } from '@heroui/badge'
+import { Avatar } from '@heroui/avatar'
 
 export const Navbar = () => {
-  const searchInput = (
-    <Input
-      aria-label="Search"
-      classNames={{
-        inputWrapper: "bg-default-100",
-        input: "text-sm",
-      }}
-      endContent={
-        <Kbd className="hidden lg:inline-block" keys={["command"]}>
-          K
-        </Kbd>
-      }
-      labelPlacement="outside"
-      placeholder="Search..."
-      startContent={
-        <SearchIcon className="text-base text-default-400 pointer-events-none flex-shrink-0" />
-      }
-      type="search"
-    />
-  );
-
   return (
-    <HeroUINavbar maxWidth="xl" position="sticky">
-      <NavbarContent className="basis-1/5 sm:basis-full" justify="start">
-        <NavbarBrand as="li" className="gap-3 max-w-fit">
-          <NextLink className="flex justify-start items-center gap-1" href="/">
-            <Logo />
-            <p className="font-bold text-inherit">ACME</p>
-          </NextLink>
+    <HeroNavbar
+      maxWidth="xl"
+      position="sticky"
+      classNames={{
+        base: 'bg-white/70 dark:bg-black/70 backdrop-blur-xl border-b border-zinc-200 dark:border-zinc-800'
+      }}
+    >
+      <NavbarContent justify="start">
+        <NavbarBrand className="gap-3">
+          <div className="flex items-center justify-center size-9 rounded-xl bg-primary text-white shadow-lg shadow-primary/20">
+            <span className="material-symbols-outlined text-[20px]">
+              sprint
+            </span>
+          </div>
+          <p className="text-xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50">
+            RunWise AI
+          </p>
         </NavbarBrand>
-        <ul className="hidden lg:flex gap-4 justify-start ml-2">
-          {siteConfig.navItems.map((item) => (
-            <NavbarItem key={item.href}>
-              <NextLink
-                className={clsx(
-                  linkStyles({ color: "foreground" }),
-                  "data-[active=true]:text-primary data-[active=true]:font-medium",
-                )}
-                color="foreground"
-                href={item.href}
-              >
-                {item.label}
-              </NextLink>
-            </NavbarItem>
-          ))}
-        </ul>
       </NavbarContent>
 
-      <NavbarContent
-        className="hidden sm:flex basis-1/5 sm:basis-full"
-        justify="end"
-      >
-        <NavbarItem className="hidden sm:flex gap-2">
-          <Link isExternal aria-label="Twitter" href={siteConfig.links.twitter}>
-            <TwitterIcon className="text-default-500" />
-          </Link>
-          <Link isExternal aria-label="Discord" href={siteConfig.links.discord}>
-            <DiscordIcon className="text-default-500" />
-          </Link>
-          <Link isExternal aria-label="Github" href={siteConfig.links.github}>
-            <GithubIcon className="text-default-500" />
-          </Link>
-          <ThemeSwitch />
-        </NavbarItem>
-        <NavbarItem className="hidden lg:flex">{searchInput}</NavbarItem>
-        <NavbarItem className="hidden md:flex">
-          <Button
-            isExternal
-            as={Link}
-            className="text-sm font-normal text-default-600 bg-default-100"
-            href={siteConfig.links.sponsor}
-            startContent={<HeartFilledIcon className="text-danger" />}
-            variant="flat"
+      <NavbarContent className="hidden sm:flex gap-16" justify="center">
+        <NavbarItem>
+          <Link
+            className="text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100 font-medium"
+            href="#"
+            color="foreground"
           >
-            Sponsor
-          </Button>
+            Analyze
+          </Link>
+        </NavbarItem>
+        <NavbarItem>
+          <Link
+            className="text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100 font-medium"
+            href="#"
+            color="foreground"
+          >
+            My Collection
+          </Link>
+        </NavbarItem>
+        <NavbarItem>
+          <Link
+            className="text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100 font-medium"
+            href="#"
+            color="foreground"
+          >
+            Shop
+          </Link>
         </NavbarItem>
       </NavbarContent>
 
-      <NavbarContent className="sm:hidden basis-1 pl-4" justify="end">
-        <Link isExternal aria-label="Github" href={siteConfig.links.github}>
-          <GithubIcon className="text-default-500" />
-        </Link>
-        <ThemeSwitch />
-        <NavbarMenuToggle />
-      </NavbarContent>
+      <NavbarContent justify="end">
+        <NavbarItem className="flex items-center gap-2">
+          <Button
+            isIconOnly
+            radius="full"
+            variant="light"
+            className="text-zinc-500 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800"
+          >
+            <Badge content="" color="primary" shape="circle" size="sm">
+              <span className="material-symbols-outlined text-[20px]">
+                notifications
+              </span>
+            </Badge>
+          </Button>
 
-      <NavbarMenu>
-        {searchInput}
-        <div className="mx-4 mt-2 flex flex-col gap-2">
-          {siteConfig.navMenuItems.map((item, index) => (
-            <NavbarMenuItem key={`${item}-${index}`}>
-              <Link
-                color={
-                  index === 2
-                    ? "primary"
-                    : index === siteConfig.navMenuItems.length - 1
-                      ? "danger"
-                      : "foreground"
-                }
-                href="#"
-                size="lg"
-              >
-                {item.label}
-              </Link>
-            </NavbarMenuItem>
-          ))}
-        </div>
-      </NavbarMenu>
-    </HeroUINavbar>
-  );
-};
+          <Avatar
+            isBordered
+            src="https://lh3.googleusercontent.com/aida-public/AB6AXuAIZPh2JfSbo04ojTBv8cE7eBFbQc4N_8isVqH_PDQ10Af9j0K7Yd5C4NOfuANqmV5LnkQ-F76ozD8POTp8aZUMfBux-fVugiCwBniq6Vszp1SmOguXjed_oRcpMrsX3LonTDl5xTn2mUtU42nFGv-XkTpOX-81SFOVEhzU45_IazR1dWx9kmZAbzWIe9QgY-soeyh25WYjwbCN4RrVbV8PuqlxNcTjffnou8JAjfwGPI7djPzwnNn7nIkJvJhLGwJm_54qc6VAH0c"
+            size="sm"
+            className="cursor-pointer ring-2 ring-zinc-100 dark:ring-zinc-800"
+          />
+        </NavbarItem>
+      </NavbarContent>
+    </HeroNavbar>
+  )
+}
