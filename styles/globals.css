@@ -7,9 +7,16 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme {
-  --font-sans: 'Inter', sans-serif;
-  --font-display: 'Inter', sans-serif;
+  /* --font-sans: var(--font-barlow), 'Inter', sans-serif; */
+  /* --font-display: var(--font-barlow), 'Inter', sans-serif; */
 
+  --font-sans:
+    var(--font-barlow), ui-sans-serif, system-ui, sans-serif,
+    'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+
+  --font-kanit: var(--font-kanit), ui-sans-serif, system-ui, sans-serif;
+
+  --font-display: var(--font-barlow), ui-sans-serif, system-ui, sans-serif;
   --color-primary: #006fee;
   --color-primary-hover: #005bc4;
   --color-zinc-850: #27272a;
@@ -32,4 +39,19 @@
   --shadow-hero-light:
     0 0 0 1px rgba(0, 0, 0, 0.05), 0 4px 6px -1px rgba(0, 0, 0, 0.05),
     0 2px 4px -1px rgba(0, 0, 0, 0.03);
+}
+
+/* 1. Body usa font-sans (Barlow) por defecto */
+body {
+  font-family: var(--font-barlow), ui-sans-serif, system-ui, sans-serif;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-kanit), ui-sans-serif, system-ui, sans-serif;
+  font-weight: 600; /* Opcional: Kanit se ve bien un poco gruesa */
 }

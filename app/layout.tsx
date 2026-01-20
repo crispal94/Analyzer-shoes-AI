@@ -5,17 +5,21 @@ import clsx from 'clsx'
 import { Providers } from './providers'
 
 import { siteConfig } from '@/config/site'
-import { Inter, Noto_Sans } from 'next/font/google'
+import { Barlow, Kanit } from 'next/font/google'
 
-const inter = Inter({
+const barlow = Barlow({
   subsets: ['latin'],
-  weight: ['400', '500', '600', '700', '900'],
-  variable: '--font-inter'
+  weight: ['400', '500', '600', '700', '800', '900'],
+  variable: '--font-barlow',
+  display: 'swap'
 })
-const notoSans = Noto_Sans({
+
+const kanit = Kanit({
   subsets: ['latin'],
-  weight: ['400', '500', '700'],
-  variable: '--font-noto-sans'
+  // Kanit se ve genial en pesos altos (600+), asegúrate de incluirlos
+  weight: ['400', '500', '600', '700', '800'],
+  variable: '--font-kanit', // Variable única para Kanit
+  display: 'swap'
 })
 
 export const metadata: Metadata = {
@@ -42,7 +46,11 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html suppressHydrationWarning lang="en">
+    <html
+      suppressHydrationWarning
+      className={clsx(barlow.variable, kanit.variable)}
+      lang="en"
+    >
       <head>
         <link
           href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
@@ -50,10 +58,9 @@ export default function RootLayout({
         />
       </head>
       <body
+        suppressHydrationWarning
         className={clsx(
-          'min-h-screen text-foreground font-sans antialiased bg-background-light dark:bg-background-dark',
-          inter.variable,
-          notoSans.variable
+          'min-h-screen text-foreground font-sans antialiased bg-background-light dark:bg-background-dark'
         )}
       >
         <Providers themeProps={{ attribute: 'class', defaultTheme: 'dark' }}>
