@@ -1,7 +1,8 @@
-import { Navbar } from '@/components/navbar'
 import { Button } from '@heroui/button'
 import { Card, CardBody } from '@heroui/card'
 import { Link } from '@heroui/link'
+
+import { Navbar } from '@/components/navbar'
 
 export default function Home() {
   return (
@@ -23,7 +24,7 @@ export default function Home() {
               radius="lg"
             >
               <CardBody className="p-0 relative overflow-hidden bg-card-light dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-3xl">
-                <div className="absolute inset-0 bg-gradient-to-br from-zinc-50 via-white to-zinc-100 dark:from-zinc-900 dark:via-zinc-900 dark:to-zinc-950 opacity-100 z-0"></div>
+                <div className="absolute inset-0 bg-gradient-to-br from-zinc-50 via-white to-zinc-100 dark:from-zinc-900 dark:via-zinc-900 dark:to-zinc-950 opacity-100 z-0" />
                 <div className="relative z-10 flex flex-col md:flex-row items-center gap-8 p-8 md:p-12">
                   <div className="flex-shrink-0">
                     <div className="flex items-center justify-center size-24 md:size-32 rounded-3xl bg-primary/10 dark:bg-primary/20 text-primary border border-primary/20">
@@ -38,15 +39,15 @@ export default function Home() {
                         Upload Outsole Photos
                       </h2>
                       <p className="text-zinc-500 dark:text-zinc-400 leading-relaxed">
-                        Drag and drop your images here to start the analysis. We
-                        support high-resolution JPG and PNG formats up to 10MB.
+                        Drag and drop your images here to start the analysis. We support
+                        high-resolution JPG and PNG formats up to 10MB.
                       </p>
                     </div>
                     <div className="flex flex-col sm:flex-row gap-3 pt-2 justify-center md:justify-start">
                       <Button
-                        size="lg"
-                        color="primary"
                         className="shadow-lg shadow-primary/20 font-medium px-6"
+                        color="primary"
+                        size="lg"
                         startContent={
                           <span className="material-symbols-outlined text-[20px]">
                             add_photo_alternate
@@ -56,16 +57,16 @@ export default function Home() {
                         Select Files
                       </Button>
                       <Button
+                        className="bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-900 dark:text-white border border-zinc-200 dark:border-zinc-700 font-medium px-6"
                         size="lg"
                         variant="flat"
-                        className="bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-900 dark:text-white border border-zinc-200 dark:border-zinc-700 font-medium px-6"
                       >
                         Use Camera
                       </Button>
                     </div>
                   </div>
                 </div>
-                <div className="absolute inset-4 rounded-2xl border-2 border-dashed border-zinc-200 dark:border-zinc-800 pointer-events-none"></div>
+                <div className="absolute inset-4 rounded-2xl border-2 border-dashed border-zinc-200 dark:border-zinc-800 pointer-events-none" />
               </CardBody>
             </Card>
           </div>
@@ -254,28 +255,26 @@ export default function Home() {
       </main>
       <footer className="w-full border-t border-zinc-200 dark:border-zinc-800 mt-auto py-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-4">
-          <p className="text-sm text-zinc-500">
-            © 2023 RunWise AI. All rights reserved.
-          </p>
+          <p className="text-sm text-zinc-500">© 2023 RunWise AI. All rights reserved.</p>
           <div className="flex items-center gap-6">
             <Link
               className="text-sm text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-300"
-              href="#"
               color="foreground"
+              href="#"
             >
               Privacy
             </Link>
             <Link
               className="text-sm text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-300"
-              href="#"
               color="foreground"
+              href="#"
             >
               Terms
             </Link>
             <Link
               className="text-sm text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-300"
-              href="#"
               color="foreground"
+              href="#"
             >
               Support
             </Link>
