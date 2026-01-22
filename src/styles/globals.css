@@ -1,8 +1,9 @@
 @import 'tailwindcss';
+@import 'material-symbols';
 
-@plugin '../hero.ts';
+@plugin '../../hero.ts';
 
-@source '../node_modules/@heroui/theme/dist/**/*.{js,ts,jsx,tsx}';
+@source '../../node_modules/@heroui/theme/dist/**/*.{js,ts,jsx,tsx}';
 
 @custom-variant dark (&:is(.dark *));
 
@@ -11,8 +12,8 @@
   /* --font-display: var(--font-barlow), 'Inter', sans-serif; */
 
   --font-sans:
-    var(--font-barlow), ui-sans-serif, system-ui, sans-serif,
-    'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+    var(--font-barlow), ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+    'Segoe UI Symbol', 'Noto Color Emoji';
 
   --font-kanit: var(--font-kanit), ui-sans-serif, system-ui, sans-serif;
 
