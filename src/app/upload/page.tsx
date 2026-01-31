@@ -7,12 +7,18 @@ import { UploadArea } from '@/components/upload/UploadArea'
 import { UploadedPhotoCard } from '@/components/upload/UploadedPhotoCard'
 import { Footer } from '@/components/Footer'
 import { useUpload } from '@/context/UploadContext'
+import { useRouter } from 'next/navigation'
+import { useEffect } from 'react'
 
 export default function UploadPage() {
-  const { files, removeFile } = useUpload()
+  const { state, removeFile } = useUpload()
+  const router = useRouter()
 
-  const placeholders = 3 - files.length
-  const placeholderViews = ['Side View', 'Sole View', 'Top View'].slice(files.length)
+  const totalUploaded = [state.side, state.sole, state.top].filter(Boolean).length
+
+  useEffect(() => {
+    // Optional: Pre-fill or check logic
+  }, [])
 
   return (
     <div className="bg-background-page text-white font-sans min-h-screen flex flex-col selection:bg-primary/30">
@@ -38,36 +44,41 @@ export default function UploadPage() {
                 </p>
               </div>
 
-              <UploadArea disabled={files.length >= 3} />
+              <UploadArea disabled={totalUploaded >= 3} />
 
               <div className="flex items-center gap-4 py-2">
                 <div className="h-[1px] flex-1 bg-surface-border" />
                 <span className="text-xs font-bold uppercase tracking-widest text-text-secondary">
-                  Uploaded ({files.length}/3)
+                  Uploaded ({totalUploaded}/3)
                 </span>
                 <div className="h-[1px] flex-1 bg-surface-border" />
               </div>
 
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                {files.map((file, index) => (
-                  <UploadedPhotoCard
-                    key={index}
-                    alt={file.name}
-                    isReady={true}
-                    src={URL.createObjectURL(file)}
-                    viewName={`Photo ${index + 1}`}
-                    onRemove={() => removeFile(index)}
-                  />
-                ))}
-                {Array.from({ length: Math.max(0, placeholders) }).map((_, i) => (
-                  <UploadedPhotoCard
-                    key={`placeholder-${i}`}
-                    alt=""
-                    isPlaceholder={true}
-                    src=""
-                    viewName={placeholderViews[i] || 'Next Photo'}
-                  />
-                ))}
+                <UploadedPhotoCard
+                  src={state.side ? URL.createObjectURL(state.side) : ''}
+                  alt="Side View"
+                  viewName="Side View"
+                  isReady={!!state.side}
+                  isPlaceholder={!state.side}
+                  onRemove={state.side ? () => removeFile('side') : undefined}
+                />
+                <UploadedPhotoCard
+                  src={state.sole ? URL.createObjectURL(state.sole) : ''}
+                  alt="Sole View"
+                  viewName="Sole View"
+                  isReady={!!state.sole}
+                  isPlaceholder={!state.sole}
+                  onRemove={state.sole ? () => removeFile('sole') : undefined}
+                />
+                <UploadedPhotoCard
+                  src={state.top ? URL.createObjectURL(state.top) : ''}
+                  alt="Top View"
+                  viewName="Top View"
+                  isReady={!!state.top}
+                  isPlaceholder={!state.top}
+                  onRemove={state.top ? () => removeFile('top') : undefined}
+                />
               </div>
 
               <div className="sticky bottom-4 md:static mt-4 flex items-center justify-between rounded-xl bg-surface-card/90 p-4 backdrop-blur-lg border border-surface-border shadow-2xl">
@@ -77,19 +88,21 @@ export default function UploadPage() {
                 </button>
                 <div className="flex items-center gap-3">
                   <span
-                    className={`text-xs ${placeholders <= 0 ? 'text-accent' : 'text-text-secondary'} hidden sm:inline-block font-medium`}
+                    className={`text-xs ${
+                      totalUploaded === 3 ? 'text-accent' : 'text-text-secondary'
+                    } hidden sm:inline-block font-medium`}
                   >
-                    {placeholders <= 0
+                    {totalUploaded === 3
                       ? 'All photos uploaded!'
-                      : `${placeholders} photo${placeholders !== 1 ? 's' : ''} remaining`}
+                      : `${3 - totalUploaded} photo${3 - totalUploaded !== 1 ? 's' : ''} remaining`}
                   </span>
                   <button
                     className={`flex items-center gap-2 rounded-lg px-6 py-2 text-sm font-bold transition-all ${
-                      files.length >= 3
+                      totalUploaded >= 3
                         ? 'bg-primary text-white hover:shadow-lg hover:shadow-primary/25'
                         : 'bg-surface-border text-text-secondary cursor-not-allowed'
                     }`}
-                    disabled={files.length < 3}
+                    disabled={totalUploaded < 3}
                   >
                     Next Step
                     <span className="material-symbols-outlined text-[18px]">arrow_forward</span>

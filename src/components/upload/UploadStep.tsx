@@ -2,7 +2,7 @@
 
 export const UploadStep = () => {
   return (
-    <div className="w-full max-w-3xl mx-auto">
+    <div className="w-full max-w-xs md:max-w-3xl mx-auto">
       <div className="flex items-center justify-between relative">
         <div className="absolute left-0 top-1/2 -translate-y-1/2 w-full h-[2px] bg-surface-border -z-10" />
 

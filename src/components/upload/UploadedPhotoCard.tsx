@@ -29,15 +29,31 @@ export const UploadedPhotoCard = ({
   }
 
   return (
-    <div className="relative group overflow-hidden rounded-xl border border-surface-border bg-surface-card aspect-[4/3] shadow-hero">
-      <Image
-        fill
-        alt={alt}
-        className="object-cover transition-transform duration-500 group-hover:scale-105 opacity-80 group-hover:opacity-100"
-        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-        src={src}
-      />
-      <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-between p-3 z-10">
+    <div className="relative group overflow-hidden rounded-xl border border-surface-border bg-neutral-900 aspect-[4/3] shadow-hero">
+      {/* Blurred Background Layer */}
+      <div className="absolute inset-0 z-0">
+        <Image
+          fill
+          alt={alt}
+          className="object-cover blur-xl scale-110 opacity-60 grayscale-[20%]"
+          src={src}
+          aria-hidden="true"
+        />
+        <div className="absolute inset-0 bg-black/40" />
+      </div>
+
+      {/* Main Image Layer */}
+      <div className="absolute inset-0 z-10 p-2">
+        <Image
+          fill
+          alt={alt}
+          className="object-contain drop-shadow-2xl transition-transform duration-500 group-hover:scale-105"
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+          src={src}
+        />
+      </div>
+
+      <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-between p-3 z-30">
         <span className="text-xs font-bold text-white bg-black/50 px-2 py-1 rounded backdrop-blur-sm">
           {viewName}
         </span>
@@ -49,7 +65,7 @@ export const UploadedPhotoCard = ({
         </button>
       </div>
       {isReady && (
-        <div className="absolute top-3 right-3">
+        <div className="absolute top-3 right-3 z-40">
           <div className="flex items-center gap-1.5 bg-accent text-black backdrop-blur-md px-2 py-1 rounded-full shadow-lg shadow-accent/20">
             <span className="material-symbols-outlined text-[14px] filled">check_circle</span>
             <span className="text-[10px] font-bold uppercase tracking-wide">Ready</span>
