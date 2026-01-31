@@ -1,4 +1,5 @@
 import { useRef, useState } from 'react'
+
 import { useUpload } from '@/context/UploadContext'
 
 interface UploadAreaProps {
@@ -28,6 +29,7 @@ export const UploadArea = ({ disabled }: UploadAreaProps) => {
 
     if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
       const droppedFiles = Array.from(e.dataTransfer.files)
+
       addFiles(droppedFiles)
     }
   }
@@ -35,6 +37,7 @@ export const UploadArea = ({ disabled }: UploadAreaProps) => {
   const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
       const selectedFiles = Array.from(e.target.files)
+
       addFiles(selectedFiles)
       e.target.value = ''
     }
@@ -48,23 +51,31 @@ export const UploadArea = ({ disabled }: UploadAreaProps) => {
 
   return (
     <div
-      className={`relative group ${disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}`}
-      onDragOver={handleDragOver}
-      onDragLeave={handleDragLeave}
-      onDrop={handleDrop}
+      className={`relative group ${disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'} outline-none`}
+      role="button"
+      tabIndex={0}
       onClick={handleButtonClick}
+      onDragLeave={handleDragLeave}
+      onDragOver={handleDragOver}
+      onDrop={handleDrop}
+      onKeyDown={(e) => {
+        if (!disabled && (e.key === 'Enter' || e.key === ' ')) {
+          e.preventDefault()
+          handleButtonClick()
+        }
+      }}
     >
       <input
-        type="file"
         ref={fileInputRef}
-        className="hidden"
         multiple
         accept="image/*"
+        className="hidden"
+        type="file"
         onChange={handleFileInput}
       />
       <div
         className={`absolute inset-0 bg-primary/5 rounded-xl blur-xl opacity-0 transition-opacity duration-500 ${isDragging ? 'opacity-100' : 'group-hover:opacity-100'}`}
-      ></div>
+      />
       <div
         className={`relative flex flex-col items-center justify-center gap-6 rounded-xl border-2 border-dashed border-surface-border bg-surface-card/50 px-6 py-12 transition-all ${isDragging ? 'border-primary bg-surface-card' : 'group-hover:border-primary/50 group-hover:bg-surface-card'}`}
       >
@@ -79,10 +90,10 @@ export const UploadArea = ({ disabled }: UploadAreaProps) => {
             Supported formats: JPG, PNG, HEIC (Max 20MB)
           </p>
         </div>
-        <button className="flex items-center justify-center gap-2 rounded-lg bg-primary hover:bg-primary/90 text-white text-sm font-bold px-6 py-3 transition-colors mt-2 shadow-lg shadow-primary/20">
+        <div className="flex items-center justify-center gap-2 rounded-lg bg-primary hover:bg-primary/90 text-white text-sm font-bold px-6 py-3 transition-colors mt-2 shadow-lg shadow-primary/20">
           <span className="material-symbols-outlined text-[20px]">add_a_photo</span>
           <span>Select Files</span>
-        </button>
+        </div>
       </div>
     </div>
   )
