@@ -1,10 +1,39 @@
+'use client'
+
 import { Button } from '@heroui/button'
 import { Card, CardBody } from '@heroui/card'
-import { Link } from '@heroui/link'
+import { useRouter } from 'next/navigation'
+import { useState } from 'react'
 
 import { Navbar } from '@/components/navbar'
+import { Footer } from '@/components/Footer'
+import { useUpload } from '@/context/UploadContext'
 
 export default function Home() {
+  const router = useRouter()
+  const { addFiles } = useUpload()
+  const [isDragging, setIsDragging] = useState(false)
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault()
+    setIsDragging(true)
+  }
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault()
+    setIsDragging(false)
+  }
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault()
+    setIsDragging(false)
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      const droppedFiles = Array.from(e.dataTransfer.files)
+      addFiles(droppedFiles)
+      router.push('/upload')
+    }
+  }
+
   return (
     <div className="relative flex min-h-screen w-full flex-col overflow-x-hidden selection:bg-primary selection:text-white">
       <Navbar />
@@ -19,56 +48,63 @@ export default function Home() {
             </p>
           </div>
           <div className="w-full max-w-4xl mx-auto">
-            <Card
-              className="border-none bg-transparent shadow-hero-light dark:shadow-hero"
-              radius="lg"
-            >
-              <CardBody className="p-0 relative overflow-hidden bg-card-light dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-3xl">
-                <div className="absolute inset-0 bg-gradient-to-br from-zinc-50 via-white to-zinc-100 dark:from-zinc-900 dark:via-zinc-900 dark:to-zinc-950 opacity-100 z-0" />
-                <div className="relative z-10 flex flex-col md:flex-row items-center gap-8 p-8 md:p-12">
-                  <div className="flex-shrink-0">
-                    <div className="flex items-center justify-center size-24 md:size-32 rounded-3xl bg-primary/10 dark:bg-primary/20 text-primary border border-primary/20">
-                      <span className="material-symbols-outlined text-[48px] md:text-[64px]">
-                        cloud_upload
-                      </span>
+            <div onDragOver={handleDragOver} onDragLeave={handleDragLeave} onDrop={handleDrop}>
+              <Card
+                className={`border-none bg-transparent shadow-hero-light dark:shadow-hero transition-transform duration-200 ${
+                  isDragging ? 'scale-[1.02] ring-2 ring-primary' : ''
+                }`}
+                radius="lg"
+              >
+                <CardBody className="p-0 relative overflow-hidden bg-card-light dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-3xl">
+                  <div className="absolute inset-0 bg-gradient-to-br from-zinc-50 via-white to-zinc-100 dark:from-zinc-900 dark:via-zinc-900 dark:to-zinc-950 opacity-100 z-0" />
+                  <div className="relative z-10 flex flex-col md:flex-row items-center gap-8 p-8 md:p-12">
+                    <div className="flex-shrink-0">
+                      <div className="flex items-center justify-center size-24 md:size-32 rounded-3xl bg-primary/10 dark:bg-primary/20 text-primary border border-primary/20">
+                        <span className="material-symbols-outlined text-[48px] md:text-[64px]">
+                          cloud_upload
+                        </span>
+                      </div>
+                    </div>
+                    <div className="flex-1 flex flex-col gap-4 text-center md:text-left">
+                      <div>
+                        <h2 className="text-2xl font-bold text-zinc-900 dark:text-zinc-50 mb-2">
+                          Upload Outsole Photos
+                        </h2>
+                        <p className="text-zinc-500 dark:text-zinc-400 leading-relaxed">
+                          Drag and drop your images here to start the analysis. We support
+                          high-resolution JPG and PNG formats up to 10MB.
+                        </p>
+                      </div>
+                      <div className="flex flex-col sm:flex-row gap-3 pt-2 justify-center md:justify-start">
+                        <Button
+                          className="shadow-lg shadow-primary/20 font-medium px-6"
+                          color="primary"
+                          size="lg"
+                          onPress={() => router.push('/upload')}
+                          startContent={
+                            <span className="material-symbols-outlined text-[20px]">
+                              add_photo_alternate
+                            </span>
+                          }
+                        >
+                          Select Files
+                        </Button>
+                        <Button
+                          className="bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-900 dark:text-white border border-zinc-200 dark:border-zinc-700 font-medium px-6"
+                          size="lg"
+                          variant="flat"
+                        >
+                          Use Camera
+                        </Button>
+                      </div>
                     </div>
                   </div>
-                  <div className="flex-1 flex flex-col gap-4 text-center md:text-left">
-                    <div>
-                      <h2 className="text-2xl font-bold text-zinc-900 dark:text-zinc-50 mb-2">
-                        Upload Outsole Photos
-                      </h2>
-                      <p className="text-zinc-500 dark:text-zinc-400 leading-relaxed">
-                        Drag and drop your images here to start the analysis. We support
-                        high-resolution JPG and PNG formats up to 10MB.
-                      </p>
-                    </div>
-                    <div className="flex flex-col sm:flex-row gap-3 pt-2 justify-center md:justify-start">
-                      <Button
-                        className="shadow-lg shadow-primary/20 font-medium px-6"
-                        color="primary"
-                        size="lg"
-                        startContent={
-                          <span className="material-symbols-outlined text-[20px]">
-                            add_photo_alternate
-                          </span>
-                        }
-                      >
-                        Select Files
-                      </Button>
-                      <Button
-                        className="bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-900 dark:text-white border border-zinc-200 dark:border-zinc-700 font-medium px-6"
-                        size="lg"
-                        variant="flat"
-                      >
-                        Use Camera
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-                <div className="absolute inset-4 rounded-2xl border-2 border-dashed border-zinc-200 dark:border-zinc-800 pointer-events-none" />
-              </CardBody>
-            </Card>
+                  <div
+                    className={`absolute inset-4 rounded-2xl border-2 border-dashed border-zinc-200 dark:border-zinc-800 pointer-events-none transition-colors ${isDragging ? 'border-primary bg-primary/5' : ''}`}
+                  />
+                </CardBody>
+              </Card>
+            </div>
           </div>
         </section>
         {/* <section className="flex flex-col gap-6">
@@ -253,34 +289,7 @@ export default function Home() {
           </div>
         </section> */}
       </main>
-      <footer className="w-full border-t border-zinc-200 dark:border-zinc-800 mt-auto py-8">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-4">
-          <p className="text-sm text-zinc-500">© 2023 RunWise AI. All rights reserved.</p>
-          <div className="flex items-center gap-6">
-            <Link
-              className="text-sm text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-300"
-              color="foreground"
-              href="#"
-            >
-              Privacy
-            </Link>
-            <Link
-              className="text-sm text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-300"
-              color="foreground"
-              href="#"
-            >
-              Terms
-            </Link>
-            <Link
-              className="text-sm text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-300"
-              color="foreground"
-              href="#"
-            >
-              Support
-            </Link>
-          </div>
-        </div>
-      </footer>
+      <Footer />
     </div>
   )
 }

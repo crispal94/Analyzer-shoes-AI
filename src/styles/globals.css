@@ -29,6 +29,13 @@
   --color-card-light: #ffffff;
   --color-volt: #ccff00;
 
+  /* Running App Design Colors */
+  --color-accent: #ccff00;
+  --color-surface-card: #18181b;
+  --color-surface-border: #27272a;
+  --color-text-secondary: #a1a1aa;
+  --color-background-page: #000000;
+
   --radius-lg: 0.75rem;
   --radius-xl: 1rem;
   --radius-2xl: 1.5rem;
