@@ -1,5 +1,5 @@
 import '@/styles/globals.css'
-import 'material-symbols'
+// import 'material-symbols' // Removed in favor of Google Fonts CDN for display:swap
 import { Metadata, Viewport } from 'next'
 import clsx from 'clsx'
 import { Barlow, Kanit } from 'next/font/google'
@@ -59,7 +59,12 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html suppressHydrationWarning className={clsx(barlow.variable, kanit.variable)} lang="en">
-      <head />
+      <head>
+        <link
+          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap"
+          rel="stylesheet"
+        />
+      </head>
       <body
         suppressHydrationWarning
         className={clsx(

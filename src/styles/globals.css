@@ -1,5 +1,5 @@
 @import 'tailwindcss';
-@import 'material-symbols';
+/* @import 'material-symbols'; */
 
 @plugin '../../hero.ts';
 
