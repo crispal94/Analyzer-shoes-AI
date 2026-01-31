@@ -41,31 +41,31 @@ export default function UploadPage() {
               <UploadArea disabled={files.length >= 3} />
 
               <div className="flex items-center gap-4 py-2">
-                <div className="h-[1px] flex-1 bg-surface-border"></div>
+                <div className="h-[1px] flex-1 bg-surface-border" />
                 <span className="text-xs font-bold uppercase tracking-widest text-text-secondary">
                   Uploaded ({files.length}/3)
                 </span>
-                <div className="h-[1px] flex-1 bg-surface-border"></div>
+                <div className="h-[1px] flex-1 bg-surface-border" />
               </div>
 
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
                 {files.map((file, index) => (
                   <UploadedPhotoCard
                     key={index}
-                    src={URL.createObjectURL(file)}
                     alt={file.name}
-                    viewName={`Photo ${index + 1}`}
                     isReady={true}
+                    src={URL.createObjectURL(file)}
+                    viewName={`Photo ${index + 1}`}
                     onRemove={() => removeFile(index)}
                   />
                 ))}
                 {Array.from({ length: Math.max(0, placeholders) }).map((_, i) => (
                   <UploadedPhotoCard
                     key={`placeholder-${i}`}
-                    src=""
                     alt=""
-                    viewName={placeholderViews[i] || 'Next Photo'}
                     isPlaceholder={true}
+                    src=""
+                    viewName={placeholderViews[i] || 'Next Photo'}
                   />
                 ))}
               </div>

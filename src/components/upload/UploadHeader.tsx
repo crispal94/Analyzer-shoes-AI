@@ -14,15 +14,15 @@ export const UploadHeader = () => {
           <span className="material-symbols-outlined text-[20px]">help</span>
           <span>Help Center</span>
         </button>
-        <div className="h-8 w-[1px] bg-surface-border hidden md:block"></div>
+        <div className="h-8 w-[1px] bg-surface-border hidden md:block" />
         <div
-          className="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-9 ring-2 ring-surface-border"
           aria-label="User profile picture with a gradient background"
+          className="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-9 ring-2 ring-surface-border"
           style={{
             backgroundImage:
               'url("https://lh3.googleusercontent.com/aida-public/AB6AXuAmkckFzeksn30sFL7yZqTomh6Z7e4yfPvyFAClDLiX2mglxyGnwTtXICFs64_XMVjZ9mtkhPRCPJLAsX_EG-G4WMeawKKhqeyvbPY0BpoK4CcftrUAhXwZ0rFenJl5jwGsNx7RVUyliOWWUJNsPjc_eaOiK19BcAHg8hCgoPvWg6rtBETC-p4rPbyl825AUHCZMPY14bp_KzpnAHoZt3xD2IH4dlRNKPA3xKZ7uvanDnAP6i-AvmpR77TPSQ6gsHudO2Zgq1f6b9A")',
           }}
-        ></div>
+        />
       </div>
     </header>
   )

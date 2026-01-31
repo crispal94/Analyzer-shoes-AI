@@ -42,8 +42,8 @@ export const UploadedPhotoCard = ({
           {viewName}
         </span>
         <button
-          onClick={onRemove}
           className="size-8 rounded-full bg-white/10 hover:bg-red-500/90 text-white backdrop-blur-md flex items-center justify-center transition-colors"
+          onClick={onRemove}
         >
           <span className="material-symbols-outlined text-[18px]">delete</span>
         </button>

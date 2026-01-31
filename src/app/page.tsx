@@ -29,6 +29,7 @@ export default function Home() {
     setIsDragging(false)
     if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
       const droppedFiles = Array.from(e.dataTransfer.files)
+
       addFiles(droppedFiles)
       router.push('/upload')
     }
@@ -48,7 +49,7 @@ export default function Home() {
             </p>
           </div>
           <div className="w-full max-w-4xl mx-auto">
-            <div onDragOver={handleDragOver} onDragLeave={handleDragLeave} onDrop={handleDrop}>
+            <div onDragLeave={handleDragLeave} onDragOver={handleDragOver} onDrop={handleDrop}>
               <Card
                 className={`border-none bg-transparent shadow-hero-light dark:shadow-hero transition-transform duration-200 ${
                   isDragging ? 'scale-[1.02] ring-2 ring-primary' : ''
@@ -80,12 +81,12 @@ export default function Home() {
                           className="shadow-lg shadow-primary/20 font-medium px-6"
                           color="primary"
                           size="lg"
-                          onPress={() => router.push('/upload')}
                           startContent={
                             <span className="material-symbols-outlined text-[20px]">
                               add_photo_alternate
                             </span>
                           }
+                          onPress={() => router.push('/upload')}
                         >
                           Select Files
                         </Button>
