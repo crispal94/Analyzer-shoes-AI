@@ -1,8 +1,9 @@
 export type SiteConfig = typeof siteConfig
 
 export const siteConfig = {
-  name: 'Analyzer shoes AI',
-  description: 'AI for shoes analysis',
+  name: 'RunWise AI',
+  description:
+    'AI-powered running shoe wear analysis. Detect tread life, outsole health, and get replacement recommendations instantly.',
   navItems: [
     {
       label: 'Home',

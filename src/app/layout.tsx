@@ -31,6 +31,21 @@ export const metadata: Metadata = {
   description: siteConfig.description,
   icons: {
     icon: '/favicon.ico',
+    apple: '/apple-touch-icon.png',
+  },
+  openGraph: {
+    type: 'website',
+    locale: 'en_US',
+    url: 'https://runwise.ai', // Placeholder URL
+    title: siteConfig.name,
+    description: siteConfig.description,
+    siteName: siteConfig.name,
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: siteConfig.name,
+    description: siteConfig.description,
+    creator: '@runwise_ai',
   },
 }
 
