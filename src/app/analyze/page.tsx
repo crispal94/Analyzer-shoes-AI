@@ -27,7 +27,7 @@ export default function AnalyzePage() {
   if (!isComplete) {
     return (
       <AppShell>
-        <UploadStep activeStep={3} />
+        <UploadStep activeStep={3} photosReady={false} />
         <div className="flex flex-col gap-4">
           <h1 className={pageTitleClass}>Photos needed</h1>
           <p className={pageLeadClass}>
@@ -52,7 +52,7 @@ export default function AnalyzePage() {
 
   return (
     <AppShell>
-      <UploadStep activeStep={3} />
+      <UploadStep activeStep={3} photosReady />
 
       <div className="flex max-w-3xl flex-col gap-2">
         <h1 className={pageTitleClass}>Review photos</h1>

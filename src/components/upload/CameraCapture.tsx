@@ -344,31 +344,33 @@ export const CameraCapture = ({ isOpen, onClose, onComplete }: CameraCaptureProp
           )}
         </div>
 
-        <div className="mx-auto flex w-full max-w-3xl flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <Button
-            className="font-semibold"
-            isDisabled={!canFlip}
-            startContent={
-              <span className="material-symbols-outlined text-[20px]">cameraswitch</span>
-            }
-            variant="light"
-            onPress={() =>
-              setFacingMode((current) => (current === 'environment' ? 'user' : 'environment'))
-            }
-          >
-            Flip camera
-          </Button>
-          <Button
-            className="font-semibold"
-            startContent={
-              <span className="material-symbols-outlined text-[20px]">photo_library</span>
-            }
-            variant="light"
-            onPress={() => fileInputRef.current?.click()}
-          >
-            Choose photo
-          </Button>
-        </div>
+        {!issue && (
+          <div className="mx-auto flex w-full max-w-3xl flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <Button
+              className="font-semibold"
+              isDisabled={!canFlip}
+              startContent={
+                <span className="material-symbols-outlined text-[20px]">cameraswitch</span>
+              }
+              variant="light"
+              onPress={() =>
+                setFacingMode((current) => (current === 'environment' ? 'user' : 'environment'))
+              }
+            >
+              Flip camera
+            </Button>
+            <Button
+              className="font-semibold"
+              startContent={
+                <span className="material-symbols-outlined text-[20px]">photo_library</span>
+              }
+              variant="light"
+              onPress={() => fileInputRef.current?.click()}
+            >
+              Choose photo
+            </Button>
+          </div>
+        )}
       </div>
 
       <div className="shrink-0 border-t border-surface-border bg-surface-card/90 px-4 py-4 backdrop-blur-lg">

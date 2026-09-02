@@ -51,10 +51,10 @@ export const Navbar = () => {
                 aria-current={isActive ? 'page' : undefined}
                 className={
                   isActive
-                    ? 'font-semibold text-primary'
+                    ? 'font-semibold'
                     : 'font-medium text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100'
                 }
-                color="foreground"
+                color={isActive ? 'primary' : 'foreground'}
                 href={item.href}
               >
                 {item.label}

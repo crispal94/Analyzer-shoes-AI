@@ -8,7 +8,13 @@ const STEPS = [
   { id: 3, href: '/analyze', label: 'Review' },
 ] as const
 
-export const UploadStep = ({ activeStep = 2 }: { activeStep?: 1 | 2 | 3 }) => {
+export const UploadStep = ({
+  activeStep = 2,
+  photosReady,
+}: {
+  activeStep?: 1 | 2 | 3
+  photosReady?: boolean
+}) => {
   return (
     <nav aria-label="Capture steps" className="mx-auto w-full max-w-xs md:max-w-3xl">
       <div className="relative">
@@ -18,7 +24,7 @@ export const UploadStep = ({ activeStep = 2 }: { activeStep?: 1 | 2 | 3 }) => {
         />
         <ol className="relative flex items-start justify-between">
           {STEPS.map((step) => {
-            const isComplete = activeStep > step.id
+            const isComplete = step.id < activeStep && !(step.id === 2 && photosReady === false)
             const isCurrent = activeStep === step.id
 
             return (

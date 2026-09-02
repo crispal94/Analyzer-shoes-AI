@@ -97,7 +97,7 @@ export default function UploadPage() {
                 </span>
                 <Button
                   className="font-semibold"
-                  color="primary"
+                  color={isComplete ? 'primary' : 'default'}
                   endContent={
                     <span className="material-symbols-outlined text-[18px]">arrow_forward</span>
                   }
