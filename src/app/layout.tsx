@@ -17,9 +17,8 @@ const barlow = Barlow({
 
 const kanit = Kanit({
   subsets: ['latin'],
-  // Kanit se ve genial en pesos altos (600+), asegúrate de incluirlos
   weight: ['400', '500', '600', '700', '800'],
-  variable: '--font-kanit', // Variable única para Kanit
+  variable: '--font-kanit',
   display: 'swap',
 })
 

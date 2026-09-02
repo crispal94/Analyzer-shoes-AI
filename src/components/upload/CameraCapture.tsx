@@ -1,5 +1,6 @@
 'use client'
 
+import { Button } from '@heroui/button'
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 
@@ -18,8 +19,49 @@ interface CameraCaptureProps {
   onComplete: () => void
 }
 
+type CameraIssue = 'unsupported' | 'permission' | 'unavailable' | 'generic'
+
 const blobToFile = (blob: Blob, view: RequiredView) =>
   new File([blob], `${view}-view-${Date.now()}.jpg`, { type: blob.type || 'image/jpeg' })
+
+const classifyMediaError = (error: unknown): CameraIssue => {
+  const name = error instanceof Error ? error.name : ''
+
+  if (name === 'NotAllowedError' || name === 'SecurityError') {
+    return 'permission'
+  }
+
+  if (
+    name === 'NotFoundError' ||
+    name === 'DevicesNotFoundError' ||
+    name === 'OverconstrainedError' ||
+    name === 'NotReadableError' ||
+    name === 'TrackStartError'
+  ) {
+    return 'unavailable'
+  }
+
+  return 'generic'
+}
+
+const ISSUE_COPY: Record<CameraIssue, { title: string; body: string }> = {
+  unsupported: {
+    title: 'Camera is not available here',
+    body: 'This browser cannot open a webcam. Choose a photo from your device instead.',
+  },
+  permission: {
+    title: 'Camera permission blocked',
+    body: 'Allow camera access in the browser prompt or site settings, then retry. You can also choose a photo from your files.',
+  },
+  unavailable: {
+    title: 'No webcam found',
+    body: 'Connect a camera or choose a photo from your device. Capture stays disabled until a live preview is available.',
+  },
+  generic: {
+    title: 'Could not start the camera',
+    body: 'Another app may be using it. Retry, or choose a photo from your device.',
+  },
+}
 
 export const CameraCapture = ({ isOpen, onClose, onComplete }: CameraCaptureProps) => {
   const { assignFileToView, state } = useUpload()
@@ -37,7 +79,7 @@ export const CameraCapture = ({ isOpen, onClose, onComplete }: CameraCaptureProp
   const [mounted, setMounted] = useState(false)
   const [activeView, setActiveView] = useState<RequiredView>('side')
   const [facingMode, setFacingMode] = useState<'user' | 'environment'>('environment')
-  const [error, setError] = useState<string | null>(null)
+  const [issue, setIssue] = useState<CameraIssue | null>(null)
   const [isStarting, setIsStarting] = useState(false)
   const [isCapturing, setIsCapturing] = useState(false)
   const [hasPreview, setHasPreview] = useState(false)
@@ -61,13 +103,14 @@ export const CameraCapture = ({ isOpen, onClose, onComplete }: CameraCaptureProp
 
   const startStream = useCallback(async () => {
     if (!navigator.mediaDevices?.getUserMedia) {
-      setError('Camera is not supported in this browser. You can still choose a photo instead.')
+      setIssue('unsupported')
+      setIsStarting(false)
 
       return
     }
 
     setIsStarting(true)
-    setError(null)
+    setIssue(null)
     stopStream()
 
     try {
@@ -82,7 +125,11 @@ export const CameraCapture = ({ isOpen, onClose, onComplete }: CameraCaptureProp
             width: { ideal: 1920 },
           },
         })
-      } catch {
+      } catch (constrainedError) {
+        if (classifyMediaError(constrainedError) === 'permission') {
+          throw constrainedError
+        }
+
         stream = await navigator.mediaDevices.getUserMedia({
           audio: false,
           video: true,
@@ -99,11 +146,9 @@ export const CameraCapture = ({ isOpen, onClose, onComplete }: CameraCaptureProp
         setHasPreview(true)
       }
 
-      setError(null)
-    } catch {
-      setError(
-        'Could not access the camera. Check browser permissions, or choose a photo from your device.'
-      )
+      setIssue(null)
+    } catch (error) {
+      setIssue(classifyMediaError(error))
     } finally {
       setIsStarting(false)
     }
@@ -183,7 +228,7 @@ export const CameraCapture = ({ isOpen, onClose, onComplete }: CameraCaptureProp
       const context = canvas.getContext('2d')
 
       if (!context) {
-        setError('Could not capture a still from the camera.')
+        setIssue('generic')
 
         return
       }
@@ -195,7 +240,7 @@ export const CameraCapture = ({ isOpen, onClose, onComplete }: CameraCaptureProp
       )
 
       if (!blob) {
-        setError('Could not capture a still from the camera.')
+        setIssue('generic')
 
         return
       }
@@ -228,30 +273,27 @@ export const CameraCapture = ({ isOpen, onClose, onComplete }: CameraCaptureProp
   )
   const captureStep = Math.min(filledCount + 1, REQUIRED_VIEWS.length)
   const viewLabel = VIEW_LABELS[activeView]
+  const canCapture = !isCapturing && hasPreview && !issue
+  const canFlip = !isStarting && !issue && Boolean(navigator.mediaDevices?.getUserMedia)
 
   return createPortal(
-    <div className="fixed inset-0 z-[200] flex h-dvh max-h-dvh flex-col overflow-hidden bg-background-page text-white">
+    <div className="dark fixed inset-0 z-[200] flex h-dvh max-h-dvh flex-col overflow-hidden bg-background-page text-zinc-50">
       <div className="flex shrink-0 items-center justify-between gap-3 border-b border-surface-border px-4 py-3">
         <div>
-          <p className="text-xs font-bold uppercase tracking-widest text-text-secondary">
+          <p className="text-xs font-bold uppercase tracking-widest text-zinc-400">
             Capture {captureStep} of {REQUIRED_VIEWS.length}
           </p>
-          <h2 className="text-lg font-bold">{viewLabel}</h2>
+          <h2 className="text-lg font-bold text-zinc-50">{viewLabel}</h2>
         </div>
-        <button
-          aria-label="Close camera"
-          className="flex size-10 items-center justify-center rounded-lg text-white hover:bg-white/5"
-          type="button"
-          onClick={handleDismiss}
-        >
+        <Button isIconOnly aria-label="Close camera" variant="light" onPress={handleDismiss}>
           <span className="material-symbols-outlined">close</span>
-        </button>
+        </Button>
       </div>
 
       <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto px-4 py-4">
-        <p className="text-sm text-text-secondary">{VIEW_INSTRUCTIONS[activeView]}</p>
+        <p className="text-sm text-zinc-300">{VIEW_INSTRUCTIONS[activeView]}</p>
 
-        <div className="relative mx-auto aspect-[4/3] w-full max-w-3xl max-h-[46dvh] overflow-hidden rounded-xl border border-surface-border bg-black">
+        <div className="relative mx-auto aspect-[4/3] w-full max-h-[46dvh] max-w-3xl overflow-hidden rounded-xl border border-surface-border bg-black">
           <video
             ref={videoRef}
             autoPlay
@@ -259,62 +301,101 @@ export const CameraCapture = ({ isOpen, onClose, onComplete }: CameraCaptureProp
             playsInline
             className={`absolute inset-0 h-full w-full object-cover ${
               facingMode === 'user' ? 'scale-x-[-1]' : ''
-            }`}
+            } ${hasPreview ? 'opacity-100' : 'opacity-0'}`}
           />
           <canvas ref={canvasRef} className="hidden" />
           {isStarting && (
-            <div className="absolute inset-0 flex items-center justify-center bg-black/50 text-sm text-text-secondary">
+            <div className="absolute inset-0 flex items-center justify-center bg-black/60 text-sm text-zinc-300">
               Starting camera…
+            </div>
+          )}
+          {!isStarting && issue && (
+            <div
+              aria-live="polite"
+              className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-zinc-950 px-6 text-center"
+              role="status"
+            >
+              <span className="material-symbols-outlined text-[40px] text-zinc-400">
+                {issue === 'permission' ? 'videocam_off' : 'no_photography'}
+              </span>
+              <p className="text-base font-bold text-zinc-50">{ISSUE_COPY[issue].title}</p>
+              <p className="max-w-md text-sm leading-relaxed text-zinc-300">
+                {ISSUE_COPY[issue].body}
+              </p>
+              <div className="flex flex-col gap-2 pt-1 sm:flex-row">
+                {issue !== 'unsupported' && (
+                  <Button
+                    className="font-semibold"
+                    variant="bordered"
+                    onPress={() => void startStream()}
+                  >
+                    Retry camera
+                  </Button>
+                )}
+                <Button
+                  className="font-semibold"
+                  color="primary"
+                  onPress={() => fileInputRef.current?.click()}
+                >
+                  Choose photo
+                </Button>
+              </div>
             </div>
           )}
         </div>
 
-        {error && (
-          <div className="rounded-xl border border-surface-border bg-surface-card px-4 py-3 text-sm text-text-secondary">
-            {error}
+        {!issue && (
+          <div className="mx-auto flex w-full max-w-3xl flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <Button
+              className="font-semibold"
+              isDisabled={!canFlip}
+              startContent={
+                <span className="material-symbols-outlined text-[20px]">cameraswitch</span>
+              }
+              variant="light"
+              onPress={() =>
+                setFacingMode((current) => (current === 'environment' ? 'user' : 'environment'))
+              }
+            >
+              Flip camera
+            </Button>
+            <Button
+              className="font-semibold"
+              startContent={
+                <span className="material-symbols-outlined text-[20px]">photo_library</span>
+              }
+              variant="light"
+              onPress={() => fileInputRef.current?.click()}
+            >
+              Choose photo
+            </Button>
           </div>
         )}
-
-        <div className="mx-auto flex w-full max-w-3xl flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <button
-            className="flex items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-bold text-white hover:bg-white/5"
-            type="button"
-            onClick={() =>
-              setFacingMode((current) => (current === 'environment' ? 'user' : 'environment'))
-            }
-          >
-            <span className="material-symbols-outlined text-[20px]">cameraswitch</span>
-            Flip Camera
-          </button>
-          <button
-            className="flex items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-bold text-white hover:bg-white/5"
-            type="button"
-            onClick={() => fileInputRef.current?.click()}
-          >
-            <span className="material-symbols-outlined text-[20px]">photo_library</span>
-            Choose Photo
-          </button>
-        </div>
       </div>
 
       <div className="shrink-0 border-t border-surface-border bg-surface-card/90 px-4 py-4 backdrop-blur-lg">
         <div className="mx-auto flex w-full max-w-3xl items-center justify-between gap-3">
-          <button
-            className="rounded-lg px-4 py-2 text-sm font-bold text-white hover:bg-white/5"
-            type="button"
-            onClick={handleDismiss}
-          >
+          <Button className="font-semibold" variant="light" onPress={handleDismiss}>
             Cancel
-          </button>
-          <button
-            className="flex items-center gap-2 rounded-lg bg-primary px-6 py-3 text-sm font-bold text-white shadow-lg shadow-primary/20 disabled:cursor-not-allowed disabled:bg-surface-border disabled:text-text-secondary"
-            disabled={isCapturing || !hasPreview}
-            type="button"
-            onClick={() => void handleCapture()}
-          >
-            <span className="material-symbols-outlined text-[22px]">photo_camera</span>
-            Capture {viewLabel}
-          </button>
+          </Button>
+          <div className="flex flex-col items-end gap-1">
+            {!canCapture && (
+              <p className="text-xs text-zinc-400">
+                {isCapturing ? 'Saving still…' : 'Live preview required to capture'}
+              </p>
+            )}
+            <Button
+              className="font-semibold"
+              color="primary"
+              isDisabled={!canCapture}
+              startContent={
+                <span className="material-symbols-outlined text-[22px]">photo_camera</span>
+              }
+              onPress={() => void handleCapture()}
+            >
+              Capture {viewLabel}
+            </Button>
+          </div>
         </div>
       </div>
 

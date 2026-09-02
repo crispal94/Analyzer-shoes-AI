@@ -61,5 +61,15 @@ h4,
 h5,
 h6 {
   font-family: var(--font-kanit), ui-sans-serif, system-ui, sans-serif;
-  font-weight: 600; /* Opcional: Kanit se ve bien un poco gruesa */
+  font-weight: 600;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+* {
+  scrollbar-color: #3f3f46 transparent;
 }
