@@ -2,69 +2,36 @@ export type SiteConfig = typeof siteConfig
 
 export const siteConfig = {
   name: 'RunWise AI',
-  description:
-    'AI-powered running shoe wear analysis. Detect tread life, outsole health, and get replacement recommendations instantly.',
+  description: 'Photograph the side, sole, and top of a running shoe so wear can be reviewed.',
   navItems: [
     {
-      label: 'Home',
+      label: 'Start',
       href: '/',
     },
     {
-      label: 'Docs',
-      href: '/docs',
+      label: 'Photos',
+      href: '/upload',
     },
     {
-      label: 'Pricing',
-      href: '/pricing',
-    },
-    {
-      label: 'Blog',
-      href: '/blog',
-    },
-    {
-      label: 'About',
-      href: '/about',
+      label: 'Review',
+      href: '/analyze',
     },
   ],
   navMenuItems: [
     {
-      label: 'Profile',
-      href: '/profile',
+      label: 'Start',
+      href: '/',
     },
     {
-      label: 'Dashboard',
-      href: '/dashboard',
+      label: 'Photos',
+      href: '/upload',
     },
     {
-      label: 'Projects',
-      href: '/projects',
-    },
-    {
-      label: 'Team',
-      href: '/team',
-    },
-    {
-      label: 'Calendar',
-      href: '/calendar',
-    },
-    {
-      label: 'Settings',
-      href: '/settings',
-    },
-    {
-      label: 'Help & Feedback',
-      href: '/help-feedback',
-    },
-    {
-      label: 'Logout',
-      href: '/logout',
+      label: 'Review',
+      href: '/analyze',
     },
   ],
   links: {
-    github: 'https://github.com/heroui-inc/heroui',
-    twitter: 'https://twitter.com/hero_ui',
-    docs: 'https://heroui.com',
-    discord: 'https://discord.gg/9b6yyZKmH4',
-    sponsor: 'https://patreon.com/jrgarciadev',
+    github: 'https://github.com/crispal94/Analyzer-shoes-AI',
   },
 }

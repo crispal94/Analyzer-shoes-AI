@@ -1,119 +1,123 @@
 'use client'
 
+import { Button } from '@heroui/button'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 
-import { Navbar } from '@/components/navbar'
-import { Footer } from '@/components/Footer'
+import { AppShell, pageLeadClass, pageTitleClass } from '@/components/AppShell'
 import { CameraCapture } from '@/components/upload/CameraCapture'
 import { PhotographyTips } from '@/components/upload/PhotographyTips'
 import { UploadArea } from '@/components/upload/UploadArea'
 import { UploadedPhotoCard } from '@/components/upload/UploadedPhotoCard'
 import { UploadStep } from '@/components/upload/UploadStep'
-import { REQUIRED_VIEWS, VIEW_LABELS, useUpload, type RequiredView } from '@/context/UploadContext'
+import {
+  REQUIRED_VIEWS,
+  VIEW_INSTRUCTIONS,
+  VIEW_LABELS,
+  useUpload,
+  type RequiredView,
+} from '@/context/UploadContext'
 
 const VIEW_ALT: Record<RequiredView, string> = {
-  side: 'Side View',
-  sole: 'Sole View',
-  top: 'Top View',
+  side: 'Side view of a running shoe',
+  sole: 'Sole view of a running shoe',
+  top: 'Top view of a running shoe',
 }
 
 export default function UploadPage() {
   const { assignFileToView, isComplete, removeFile, requiredCount, state } = useUpload()
   const router = useRouter()
   const [isCameraOpen, setIsCameraOpen] = useState(false)
+  const remaining = REQUIRED_VIEWS.length - requiredCount
 
   return (
-    <div className="bg-background-page text-white font-sans min-h-screen flex flex-col selection:bg-primary/30">
-      <Navbar />
-      <main className="flex-1 flex flex-col items-center w-full px-4 py-8 md:py-12">
-        <div className="w-full max-w-5xl flex flex-col gap-10">
-          <UploadStep activeStep={2} />
+    <>
+      <AppShell>
+        <UploadStep activeStep={2} />
 
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-            <div className="lg:col-span-4 flex flex-col gap-6 order-2 lg:order-1">
-              <PhotographyTips />
+        <div className="grid grid-cols-1 items-start gap-8 lg:grid-cols-12">
+          <aside className="order-2 flex flex-col gap-6 lg:order-1 lg:col-span-4">
+            <PhotographyTips />
+          </aside>
+
+          <div className="order-1 flex flex-col gap-6 lg:order-2 lg:col-span-8">
+            <div className="flex flex-col gap-2">
+              <h1 className={pageTitleClass}>Upload photos</h1>
+              <p className={pageLeadClass}>
+                Add a side, sole, and top photo. Three views are required before you can continue.
+              </p>
             </div>
 
-            <div className="lg:col-span-8 flex flex-col gap-6 order-1 lg:order-2">
-              <div className="flex flex-col gap-2">
-                <h1 className="text-3xl md:text-4xl font-bold text-white tracking-tight">
-                  Upload Photos
-                </h1>
-                <p className="text-text-secondary">
-                  We need at least 3 photos to generate an accurate AI model.
-                </p>
-              </div>
+            <UploadArea disabled={isComplete} onUseCamera={() => setIsCameraOpen(true)} />
 
-              <UploadArea disabled={isComplete} onUseCamera={() => setIsCameraOpen(true)} />
+            <div className="flex items-center gap-4 py-2">
+              <div className="h-px flex-1 bg-zinc-200 dark:bg-surface-border" />
+              <span className="text-xs font-bold uppercase tracking-widest text-zinc-600 dark:text-zinc-400">
+                Uploaded ({requiredCount}/3)
+              </span>
+              <div className="h-px flex-1 bg-zinc-200 dark:bg-surface-border" />
+            </div>
 
-              <div className="flex items-center gap-4 py-2">
-                <div className="h-[1px] flex-1 bg-surface-border" />
-                <span className="text-xs font-bold uppercase tracking-widest text-text-secondary">
-                  Uploaded ({requiredCount}/3)
-                </span>
-                <div className="h-[1px] flex-1 bg-surface-border" />
-              </div>
+            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
+              {REQUIRED_VIEWS.map((view) => (
+                <UploadedPhotoCard
+                  key={view}
+                  alt={VIEW_ALT[view]}
+                  description={VIEW_INSTRUCTIONS[view]}
+                  file={state[view]}
+                  viewName={VIEW_LABELS[view]}
+                  onAssign={(file) => assignFileToView(file, view)}
+                  onRemove={state[view] ? () => removeFile(view) : undefined}
+                />
+              ))}
+            </div>
 
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                {REQUIRED_VIEWS.map((view) => (
-                  <UploadedPhotoCard
-                    key={view}
-                    alt={VIEW_ALT[view]}
-                    file={state[view]}
-                    viewName={VIEW_LABELS[view]}
-                    onAssign={(file) => assignFileToView(file, view)}
-                    onRemove={state[view] ? () => removeFile(view) : undefined}
-                  />
-                ))}
-              </div>
-
-              <div className="sticky bottom-4 md:static mt-4 flex items-center justify-between rounded-xl bg-surface-card/90 p-4 backdrop-blur-lg border border-surface-border shadow-2xl">
-                <button
-                  className="flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-bold text-white hover:bg-white/5 transition-colors"
-                  type="button"
-                  onClick={() => router.push('/')}
-                >
+            <div className="sticky bottom-4 mt-4 flex items-center justify-between gap-3 rounded-xl border border-zinc-200 bg-white/90 p-4 shadow-lg backdrop-blur-lg dark:border-surface-border dark:bg-surface-card/90 md:static">
+              <Button
+                className="font-semibold"
+                startContent={
                   <span className="material-symbols-outlined text-[18px]">arrow_back</span>
-                  Back
-                </button>
-                <div className="flex items-center gap-3">
-                  <span
-                    className={`text-xs ${
-                      isComplete ? 'text-accent' : 'text-text-secondary'
-                    } hidden sm:inline-block font-medium`}
-                  >
-                    {isComplete
-                      ? 'All photos uploaded!'
-                      : `${3 - requiredCount} photo${3 - requiredCount !== 1 ? 's' : ''} remaining`}
-                  </span>
-                  <button
-                    className={`flex items-center gap-2 rounded-lg px-6 py-2 text-sm font-bold transition-all ${
-                      isComplete
-                        ? 'bg-primary text-white hover:shadow-lg hover:shadow-primary/25'
-                        : 'bg-surface-border text-text-secondary cursor-not-allowed'
-                    }`}
-                    disabled={!isComplete}
-                    type="button"
-                    onClick={() => {
-                      if (isComplete) router.push('/analyze')
-                    }}
-                  >
-                    Next Step
+                }
+                variant="light"
+                onPress={() => router.push('/')}
+              >
+                Back
+              </Button>
+              <div className="flex items-center gap-3">
+                <span
+                  className={`hidden text-xs font-medium sm:inline-block ${
+                    isComplete
+                      ? 'text-zinc-800 dark:text-accent'
+                      : 'text-zinc-600 dark:text-zinc-400'
+                  }`}
+                >
+                  {isComplete
+                    ? 'All photos uploaded'
+                    : `${remaining} photo${remaining !== 1 ? 's' : ''} remaining`}
+                </span>
+                <Button
+                  className="font-semibold"
+                  color="primary"
+                  endContent={
                     <span className="material-symbols-outlined text-[18px]">arrow_forward</span>
-                  </button>
-                </div>
+                  }
+                  isDisabled={!isComplete}
+                  onPress={() => {
+                    if (isComplete) router.push('/analyze')
+                  }}
+                >
+                  Next step
+                </Button>
               </div>
             </div>
           </div>
         </div>
-      </main>
-      <Footer />
+      </AppShell>
       <CameraCapture
         isOpen={isCameraOpen}
         onClose={() => setIsCameraOpen(false)}
         onComplete={() => setIsCameraOpen(false)}
       />
-    </div>
+    </>
   )
 }

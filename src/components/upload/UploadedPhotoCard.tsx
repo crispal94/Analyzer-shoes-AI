@@ -9,6 +9,7 @@ interface UploadedPhotoCardProps {
   file: File | null
   alt: string
   viewName: string
+  description?: string
   onAssign?: (file: File) => void
   onRemove?: () => void
 }
@@ -17,6 +18,7 @@ export const UploadedPhotoCard = ({
   file,
   alt,
   viewName,
+  description,
   onAssign,
   onRemove,
 }: UploadedPhotoCardProps) => {
@@ -36,14 +38,19 @@ export const UploadedPhotoCard = ({
   if (!file) {
     return (
       <button
-        className="relative rounded-xl border-2 border-dashed border-surface-border bg-surface-card/30 aspect-[4/3] flex flex-col items-center justify-center gap-2 group hover:border-text-secondary/50 transition-colors"
+        className="group relative flex aspect-[4/3] min-h-[7.5rem] flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-zinc-300 bg-zinc-50 px-3 text-center outline-none transition-colors hover:border-zinc-500 focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background-light dark:border-surface-border dark:bg-surface-card/30 dark:hover:border-zinc-500 dark:focus-visible:ring-offset-background-page"
         type="button"
         onClick={() => inputRef.current?.click()}
       >
-        <span className="material-symbols-outlined text-text-secondary group-hover:text-white transition-colors">
+        <span className="material-symbols-outlined text-zinc-500 group-hover:text-zinc-800 dark:text-zinc-400 dark:group-hover:text-zinc-50">
           add_photo_alternate
         </span>
-        <span className="text-xs font-medium text-text-secondary">{viewName}</span>
+        <span className="text-xs font-semibold text-zinc-700 dark:text-zinc-300">{viewName}</span>
+        {description && (
+          <span className="hidden text-[11px] leading-snug text-zinc-500 sm:block dark:text-zinc-400">
+            Tap to add
+          </span>
+        )}
         <input
           ref={inputRef}
           accept="image/*"
@@ -57,34 +64,30 @@ export const UploadedPhotoCard = ({
   }
 
   return (
-    <div className="relative group overflow-hidden rounded-xl border border-surface-border bg-neutral-900 aspect-[4/3] shadow-hero">
+    <div className="group relative aspect-[4/3] overflow-hidden rounded-xl border border-zinc-200 bg-zinc-900 shadow-hero dark:border-surface-border">
       <div className="absolute inset-0 z-0">
         {/* User-uploaded blob URLs are not valid next/image sources */}
         <img
           alt=""
           aria-hidden="true"
-          className="h-full w-full object-cover blur-xl scale-110 opacity-60 grayscale-[20%]"
+          className="h-full w-full scale-110 object-cover opacity-60 blur-xl grayscale-[20%]"
           src={src}
         />
         <div className="absolute inset-0 bg-black/40" />
       </div>
 
       <div className="absolute inset-0 z-10 p-2">
-        <img
-          alt={alt}
-          className="h-full w-full object-contain drop-shadow-2xl transition-transform duration-500 group-hover:scale-105"
-          src={src}
-        />
+        <img alt={alt} className="h-full w-full object-contain drop-shadow-2xl" src={src} />
       </div>
 
-      <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-between p-3 z-30">
-        <span className="text-xs font-bold text-white bg-black/50 px-2 py-1 rounded backdrop-blur-sm">
+      <div className="absolute inset-0 z-30 flex items-end justify-between bg-gradient-to-t from-black/80 to-transparent p-3 opacity-100 md:opacity-0 md:group-hover:opacity-100">
+        <span className="rounded bg-black/50 px-2 py-1 text-xs font-bold text-white backdrop-blur-sm">
           {viewName}
         </span>
         {onRemove && (
           <button
             aria-label={`Remove ${viewName}`}
-            className="size-8 rounded-full bg-white/10 hover:bg-red-500/90 text-white backdrop-blur-md flex items-center justify-center transition-colors"
+            className="flex size-10 items-center justify-center rounded-full bg-white/10 text-white outline-none backdrop-blur-md transition-colors hover:bg-red-500/90 focus-visible:ring-2 focus-visible:ring-white"
             type="button"
             onClick={onRemove}
           >
@@ -92,9 +95,9 @@ export const UploadedPhotoCard = ({
           </button>
         )}
       </div>
-      <div className="absolute top-3 right-3 z-40">
-        <div className="flex items-center gap-1.5 bg-accent text-black backdrop-blur-md px-2 py-1 rounded-full shadow-lg shadow-accent/20">
-          <span className="material-symbols-outlined text-[14px] filled">check_circle</span>
+      <div className="absolute right-3 top-3 z-40">
+        <div className="flex items-center gap-1.5 rounded-full bg-accent px-2 py-1 text-black shadow-md">
+          <span className="material-symbols-outlined filled text-[14px]">check_circle</span>
           <span className="text-[10px] font-bold uppercase tracking-wide">Ready</span>
         </div>
       </div>

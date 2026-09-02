@@ -37,3 +37,6 @@ next-env.d.ts
 yarn.lock
 package-lock.json
 bun.lockb
+
+# Impeccable local detector cache
+.cursor/skills/impeccable/scripts/.impeccable/
