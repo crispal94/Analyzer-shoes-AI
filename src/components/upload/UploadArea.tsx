@@ -1,12 +1,15 @@
+'use client'
+
 import { useRef, useState } from 'react'
 
 import { useUpload } from '@/context/UploadContext'
 
 interface UploadAreaProps {
   disabled?: boolean
+  onUseCamera?: () => void
 }
 
-export const UploadArea = ({ disabled }: UploadAreaProps) => {
+export const UploadArea = ({ disabled, onUseCamera }: UploadAreaProps) => {
   const { addFiles } = useUpload()
   const [isDragging, setIsDragging] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -28,17 +31,13 @@ export const UploadArea = ({ disabled }: UploadAreaProps) => {
     if (disabled) return
 
     if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-      const droppedFiles = Array.from(e.dataTransfer.files)
-
-      addFiles(droppedFiles)
+      addFiles(Array.from(e.dataTransfer.files))
     }
   }
 
   const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
-      const selectedFiles = Array.from(e.target.files)
-
-      addFiles(selectedFiles)
+      addFiles(Array.from(e.target.files))
       e.target.value = ''
     }
   }
@@ -90,9 +89,25 @@ export const UploadArea = ({ disabled }: UploadAreaProps) => {
             Supported formats: JPG, PNG, HEIC (Max 20MB)
           </p>
         </div>
-        <div className="flex items-center justify-center gap-2 rounded-lg bg-primary hover:bg-primary/90 text-white text-sm font-bold px-6 py-3 transition-colors mt-2 shadow-lg shadow-primary/20">
-          <span className="material-symbols-outlined text-[20px]">add_a_photo</span>
-          <span>Select Files</span>
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mt-2">
+          <div className="flex items-center justify-center gap-2 rounded-lg bg-primary hover:bg-primary/90 text-white text-sm font-bold px-6 py-3 transition-colors shadow-lg shadow-primary/20">
+            <span className="material-symbols-outlined text-[20px]">add_a_photo</span>
+            <span>Select Files</span>
+          </div>
+          {onUseCamera && (
+            <button
+              className="flex items-center justify-center gap-2 rounded-lg bg-surface-border hover:bg-white/10 text-white text-sm font-bold px-6 py-3 transition-colors"
+              disabled={disabled}
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation()
+                if (!disabled) onUseCamera()
+              }}
+            >
+              <span className="material-symbols-outlined text-[20px]">photo_camera</span>
+              <span>Use Camera</span>
+            </button>
+          )}
         </div>
       </div>
     </div>

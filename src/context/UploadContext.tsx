@@ -2,9 +2,24 @@
 
 import { createContext, useContext, useState, ReactNode } from 'react'
 
-export type ViewType = 'side' | 'sole' | 'top' | 'other'
+export type RequiredView = 'side' | 'sole' | 'top'
+export type ViewType = RequiredView | 'other'
 
-interface UploadState {
+export const REQUIRED_VIEWS: RequiredView[] = ['side', 'sole', 'top']
+
+export const VIEW_LABELS: Record<RequiredView, string> = {
+  side: 'Side View',
+  sole: 'Sole View',
+  top: 'Top View',
+}
+
+export const VIEW_INSTRUCTIONS: Record<RequiredView, string> = {
+  side: 'Hold the shoe sideways so the profile and midsole are fully visible.',
+  sole: 'Flip the shoe and capture the full outsole tread pattern.',
+  top: 'Shoot from above so the toebox, laces, and upper are in frame.',
+}
+
+export interface UploadState {
   side: File | null
   sole: File | null
   top: File | null
@@ -16,7 +31,19 @@ interface UploadContextType {
   addFiles: (newFiles: File[]) => void
   removeFile: (view: ViewType, index?: number) => void
   assignFileToView: (file: File, view: ViewType) => void
+  requiredCount: number
+  isComplete: boolean
+  nextEmptyView: RequiredView | null
 }
+
+export const getNextEmptyView = (state: UploadState): RequiredView | null =>
+  REQUIRED_VIEWS.find((view) => !state[view]) ?? null
+
+export const countRequiredPhotos = (state: UploadState) =>
+  REQUIRED_VIEWS.filter((view) => Boolean(state[view])).length
+
+export const isImageFile = (file: File) =>
+  file.type.startsWith('image/') || /\.(jpe?g|png|webp|gif|heic|heif)$/i.test(file.name)
 
 const UploadContext = createContext<UploadContextType | undefined>(undefined)
 
@@ -29,22 +56,23 @@ export const UploadProvider = ({ children }: { children: ReactNode }) => {
   })
 
   const addFiles = (newFiles: File[]) => {
+    const imageFiles = newFiles.filter(isImageFile)
+
+    if (imageFiles.length === 0) {
+      return
+    }
+
     setState((prev) => {
       const newState = { ...prev }
-      const remainingFiles = [...newFiles]
+      const remainingFiles = [...imageFiles]
 
-      // Simple auto-fill logic for now: fill empty slots in order
-      if (!newState.side && remainingFiles.length > 0) {
-        newState.side = remainingFiles.shift()!
-      }
-      if (!newState.sole && remainingFiles.length > 0) {
-        newState.sole = remainingFiles.shift()!
-      }
-      if (!newState.top && remainingFiles.length > 0) {
-        newState.top = remainingFiles.shift()!
+      // Auto-fill empty slots in order: side → sole → top
+      for (const view of REQUIRED_VIEWS) {
+        if (!newState[view] && remainingFiles.length > 0) {
+          newState[view] = remainingFiles.shift()!
+        }
       }
 
-      // Add remaining to others
       if (remainingFiles.length > 0) {
         newState.others = [...newState.others, ...remainingFiles]
       }
@@ -55,11 +83,16 @@ export const UploadProvider = ({ children }: { children: ReactNode }) => {
 
   const assignFileToView = (file: File, view: ViewType) => {
     setState((prev) => {
-      // Logic to force assign a specific file to a specific view could go here
-      // For now, simple setter
+      if (view === 'other') {
+        return {
+          ...prev,
+          others: [...prev.others, file],
+        }
+      }
+
       return {
         ...prev,
-        [view]: view === 'other' ? [...prev.others, file] : file,
+        [view]: file,
       }
     })
   }
@@ -79,12 +112,25 @@ export const UploadProvider = ({ children }: { children: ReactNode }) => {
           [view]: null,
         }
       }
+
       return prev
     })
   }
 
+  const requiredCount = countRequiredPhotos(state)
+
   return (
-    <UploadContext.Provider value={{ state, addFiles, removeFile, assignFileToView }}>
+    <UploadContext.Provider
+      value={{
+        addFiles,
+        assignFileToView,
+        isComplete: requiredCount === REQUIRED_VIEWS.length,
+        nextEmptyView: getNextEmptyView(state),
+        removeFile,
+        requiredCount,
+        state,
+      }}
+    >
       {children}
     </UploadContext.Provider>
   )
@@ -92,8 +138,10 @@ export const UploadProvider = ({ children }: { children: ReactNode }) => {
 
 export const useUpload = () => {
   const context = useContext(UploadContext)
+
   if (context === undefined) {
     throw new Error('useUpload must be used within an UploadProvider')
   }
+
   return context
 }

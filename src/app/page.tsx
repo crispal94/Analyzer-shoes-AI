@@ -3,16 +3,32 @@
 import { Button } from '@heroui/button'
 import { Card, CardBody } from '@heroui/card'
 import { useRouter } from 'next/navigation'
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 
 import { Navbar } from '@/components/navbar'
 import { Footer } from '@/components/Footer'
+import { CameraCapture } from '@/components/upload/CameraCapture'
 import { useUpload } from '@/context/UploadContext'
 
 export default function Home() {
   const router = useRouter()
   const { addFiles } = useUpload()
   const [isDragging, setIsDragging] = useState(false)
+  const [isCameraOpen, setIsCameraOpen] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
+  const goToUpload = () => router.push('/upload')
+
+  const handleSelectedFiles = (fileList: FileList | File[]) => {
+    const files = Array.from(fileList)
+
+    if (files.length === 0) {
+      return
+    }
+
+    addFiles(files)
+    goToUpload()
+  }
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault()
@@ -30,8 +46,7 @@ export default function Home() {
     if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
       const droppedFiles = Array.from(e.dataTransfer.files)
 
-      addFiles(droppedFiles)
-      router.push('/upload')
+      handleSelectedFiles(droppedFiles)
     }
   }
 
@@ -86,14 +101,20 @@ export default function Home() {
                               add_photo_alternate
                             </span>
                           }
-                          onPress={() => router.push('/upload')}
+                          onPress={() => fileInputRef.current?.click()}
                         >
                           Select Files
                         </Button>
                         <Button
                           className="bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-900 dark:text-white border border-zinc-200 dark:border-zinc-700 font-medium px-6"
                           size="lg"
+                          startContent={
+                            <span className="material-symbols-outlined text-[20px]">
+                              photo_camera
+                            </span>
+                          }
                           variant="flat"
+                          onPress={() => setIsCameraOpen(true)}
                         >
                           Use Camera
                         </Button>
@@ -291,6 +312,30 @@ export default function Home() {
         </section> */}
       </main>
       <Footer />
+      <input
+        ref={fileInputRef}
+        multiple
+        accept="image/*"
+        className="hidden"
+        type="file"
+        onChange={(e) => {
+          if (e.target.files) {
+            handleSelectedFiles(e.target.files)
+          }
+          e.target.value = ''
+        }}
+      />
+      <CameraCapture
+        isOpen={isCameraOpen}
+        onClose={(didCapture) => {
+          setIsCameraOpen(false)
+          if (didCapture) goToUpload()
+        }}
+        onComplete={() => {
+          setIsCameraOpen(false)
+          goToUpload()
+        }}
+      />
     </div>
   )
 }

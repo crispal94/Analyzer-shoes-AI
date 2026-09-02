@@ -1,54 +1,78 @@
-import Image from 'next/image'
+'use client'
+
+import { useRef } from 'react'
+
+import { isImageFile } from '@/context/UploadContext'
+import { useObjectUrl } from '@/hooks/useObjectUrl'
 
 interface UploadedPhotoCardProps {
-  src: string
+  file: File | null
   alt: string
   viewName: string
-  isReady?: boolean
-  isPlaceholder?: boolean
+  onAssign?: (file: File) => void
   onRemove?: () => void
 }
 
 export const UploadedPhotoCard = ({
-  src,
+  file,
   alt,
   viewName,
-  isReady,
-  isPlaceholder,
+  onAssign,
   onRemove,
 }: UploadedPhotoCardProps) => {
-  if (isPlaceholder) {
+  const inputRef = useRef<HTMLInputElement>(null)
+  const src = useObjectUrl(file)
+
+  const handleAssign = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const nextFile = e.target.files?.[0]
+
+    e.target.value = ''
+
+    if (nextFile && isImageFile(nextFile)) {
+      onAssign?.(nextFile)
+    }
+  }
+
+  if (!file) {
     return (
-      <div className="relative rounded-xl border-2 border-dashed border-surface-border bg-surface-card/30 aspect-[4/3] flex flex-col items-center justify-center gap-2 group hover:border-text-secondary/50 transition-colors">
+      <button
+        className="relative rounded-xl border-2 border-dashed border-surface-border bg-surface-card/30 aspect-[4/3] flex flex-col items-center justify-center gap-2 group hover:border-text-secondary/50 transition-colors"
+        type="button"
+        onClick={() => inputRef.current?.click()}
+      >
         <span className="material-symbols-outlined text-text-secondary group-hover:text-white transition-colors">
           add_photo_alternate
         </span>
         <span className="text-xs font-medium text-text-secondary">{viewName}</span>
-      </div>
+        <input
+          ref={inputRef}
+          accept="image/*"
+          className="hidden"
+          type="file"
+          onChange={handleAssign}
+          onClick={(e) => e.stopPropagation()}
+        />
+      </button>
     )
   }
 
   return (
     <div className="relative group overflow-hidden rounded-xl border border-surface-border bg-neutral-900 aspect-[4/3] shadow-hero">
-      {/* Blurred Background Layer */}
       <div className="absolute inset-0 z-0">
-        <Image
-          fill
-          alt={alt}
-          className="object-cover blur-xl scale-110 opacity-60 grayscale-[20%]"
-          src={src}
+        {/* User-uploaded blob URLs are not valid next/image sources */}
+        <img
+          alt=""
           aria-hidden="true"
+          className="h-full w-full object-cover blur-xl scale-110 opacity-60 grayscale-[20%]"
+          src={src}
         />
         <div className="absolute inset-0 bg-black/40" />
       </div>
 
-      {/* Main Image Layer */}
       <div className="absolute inset-0 z-10 p-2">
-        <Image
-          fill
+        <img
           alt={alt}
-          className="object-contain drop-shadow-2xl transition-transform duration-500 group-hover:scale-105"
-          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+          className="h-full w-full object-contain drop-shadow-2xl transition-transform duration-500 group-hover:scale-105"
           src={src}
         />
       </div>
@@ -57,21 +81,23 @@ export const UploadedPhotoCard = ({
         <span className="text-xs font-bold text-white bg-black/50 px-2 py-1 rounded backdrop-blur-sm">
           {viewName}
         </span>
-        <button
-          className="size-8 rounded-full bg-white/10 hover:bg-red-500/90 text-white backdrop-blur-md flex items-center justify-center transition-colors"
-          onClick={onRemove}
-        >
-          <span className="material-symbols-outlined text-[18px]">delete</span>
-        </button>
+        {onRemove && (
+          <button
+            aria-label={`Remove ${viewName}`}
+            className="size-8 rounded-full bg-white/10 hover:bg-red-500/90 text-white backdrop-blur-md flex items-center justify-center transition-colors"
+            type="button"
+            onClick={onRemove}
+          >
+            <span className="material-symbols-outlined text-[18px]">delete</span>
+          </button>
+        )}
       </div>
-      {isReady && (
-        <div className="absolute top-3 right-3 z-40">
-          <div className="flex items-center gap-1.5 bg-accent text-black backdrop-blur-md px-2 py-1 rounded-full shadow-lg shadow-accent/20">
-            <span className="material-symbols-outlined text-[14px] filled">check_circle</span>
-            <span className="text-[10px] font-bold uppercase tracking-wide">Ready</span>
-          </div>
+      <div className="absolute top-3 right-3 z-40">
+        <div className="flex items-center gap-1.5 bg-accent text-black backdrop-blur-md px-2 py-1 rounded-full shadow-lg shadow-accent/20">
+          <span className="material-symbols-outlined text-[14px] filled">check_circle</span>
+          <span className="text-[10px] font-bold uppercase tracking-wide">Ready</span>
         </div>
-      )}
+      </div>
     </div>
   )
 }
