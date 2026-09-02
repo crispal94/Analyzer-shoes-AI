@@ -9,6 +9,7 @@ const nextConfig = {
     ],
   },
   output: 'standalone',
+  agentRules: false,
 }
 
 module.exports = nextConfig
