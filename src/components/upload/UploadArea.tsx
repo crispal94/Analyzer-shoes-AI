@@ -36,10 +36,15 @@ export const UploadArea = ({ disabled, onUseCamera }: UploadAreaProps) => {
   }
 
   const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files.length > 0) {
-      addFiles(Array.from(e.target.files))
-      e.target.value = ''
+    const files = e.target.files ? Array.from(e.target.files) : []
+
+    e.target.value = ''
+
+    if (files.length === 0) {
+      return
     }
+
+    addFiles(files)
   }
 
   const handleButtonClick = () => {

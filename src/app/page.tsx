@@ -319,10 +319,15 @@ export default function Home() {
         className="hidden"
         type="file"
         onChange={(e) => {
-          if (e.target.files) {
-            handleSelectedFiles(e.target.files)
-          }
+          const files = e.target.files ? Array.from(e.target.files) : []
+
           e.target.value = ''
+
+          if (files.length === 0) {
+            return
+          }
+
+          handleSelectedFiles(files)
         }}
       />
       <CameraCapture

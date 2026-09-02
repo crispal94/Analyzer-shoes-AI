@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 
 import {
@@ -22,12 +22,17 @@ const blobToFile = (blob: Blob, view: RequiredView) =>
   new File([blob], `${view}-view-${Date.now()}.jpg`, { type: blob.type || 'image/jpeg' })
 
 export const CameraCapture = ({ isOpen, onClose, onComplete }: CameraCaptureProps) => {
-  const { assignFileToView, nextEmptyView, state } = useUpload()
+  const { assignFileToView, state } = useUpload()
   const videoRef = useRef<HTMLVideoElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const streamRef = useRef<MediaStream | null>(null)
   const capturedRef = useRef(false)
+  const filledRef = useRef<Set<RequiredView>>(new Set())
+  const activeViewRef = useRef<RequiredView>('side')
+  const onCompleteRef = useRef(onComplete)
+
+  onCompleteRef.current = onComplete
 
   const [mounted, setMounted] = useState(false)
   const [activeView, setActiveView] = useState<RequiredView>('side')
@@ -36,6 +41,8 @@ export const CameraCapture = ({ isOpen, onClose, onComplete }: CameraCaptureProp
   const [isStarting, setIsStarting] = useState(false)
   const [isCapturing, setIsCapturing] = useState(false)
   const [hasPreview, setHasPreview] = useState(false)
+
+  activeViewRef.current = activeView
 
   useEffect(() => {
     setMounted(true)
@@ -102,21 +109,33 @@ export const CameraCapture = ({ isOpen, onClose, onComplete }: CameraCaptureProp
     }
   }, [facingMode, stopStream])
 
-  useEffect(() => {
+  const completeIfDone = useCallback(
+    (filled: Set<RequiredView>) => {
+      const next = REQUIRED_VIEWS.find((view) => !filled.has(view))
+
+      if (!next) {
+        stopStream()
+        onCompleteRef.current()
+
+        return true
+      }
+
+      setActiveView(next)
+
+      return false
+    },
+    [stopStream]
+  )
+
+  useLayoutEffect(() => {
     if (!isOpen) {
       return
     }
 
     capturedRef.current = false
-
-    if (!nextEmptyView) {
-      onComplete()
-
-      return
-    }
-
-    setActiveView(nextEmptyView)
-    // Only reset the active view when the overlay opens.
+    filledRef.current = new Set(REQUIRED_VIEWS.filter((view) => Boolean(state[view])))
+    completeIfDone(filledRef.current)
+    // Snapshot filled slots only when the overlay opens.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen])
 
@@ -139,24 +158,17 @@ export const CameraCapture = ({ isOpen, onClose, onComplete }: CameraCaptureProp
     onClose(capturedRef.current)
   }
 
-  const advanceAfterCapture = (view: RequiredView) => {
+  const takePhotoForView = (file: File, view: RequiredView) => {
     capturedRef.current = true
-
-    const remaining = REQUIRED_VIEWS.filter((item) => item !== view && !state[item])
-
-    if (remaining.length === 0) {
-      stopStream()
-      onComplete()
-
-      return
-    }
-
-    setActiveView(remaining[0])
+    filledRef.current.add(view)
+    assignFileToView(file, view)
+    completeIfDone(filledRef.current)
   }
 
   const handleCapture = async () => {
     const video = videoRef.current
     const canvas = canvasRef.current
+    const view = activeViewRef.current
 
     if (!video || !canvas || video.readyState < 2) {
       return
@@ -188,8 +200,7 @@ export const CameraCapture = ({ isOpen, onClose, onComplete }: CameraCaptureProp
         return
       }
 
-      assignFileToView(blobToFile(blob, activeView), activeView)
-      advanceAfterCapture(activeView)
+      takePhotoForView(blobToFile(blob, view), view)
     } finally {
       setIsCapturing(false)
     }
@@ -204,21 +215,23 @@ export const CameraCapture = ({ isOpen, onClose, onComplete }: CameraCaptureProp
       return
     }
 
-    assignFileToView(file, activeView)
-    advanceAfterCapture(activeView)
+    takePhotoForView(file, activeViewRef.current)
   }
 
   if (!mounted || !isOpen) {
     return null
   }
 
-  const filledCount = REQUIRED_VIEWS.filter((view) => Boolean(state[view])).length
+  const filledCount = Math.max(
+    filledRef.current.size,
+    REQUIRED_VIEWS.filter((view) => Boolean(state[view])).length
+  )
   const captureStep = Math.min(filledCount + 1, REQUIRED_VIEWS.length)
   const viewLabel = VIEW_LABELS[activeView]
 
   return createPortal(
-    <div className="fixed inset-0 z-[200] flex flex-col bg-background-page text-white">
-      <div className="flex items-center justify-between gap-3 border-b border-surface-border px-4 py-3">
+    <div className="fixed inset-0 z-[200] flex h-dvh max-h-dvh flex-col overflow-hidden bg-background-page text-white">
+      <div className="flex shrink-0 items-center justify-between gap-3 border-b border-surface-border px-4 py-3">
         <div>
           <p className="text-xs font-bold uppercase tracking-widest text-text-secondary">
             Capture {captureStep} of {REQUIRED_VIEWS.length}
@@ -235,10 +248,10 @@ export const CameraCapture = ({ isOpen, onClose, onComplete }: CameraCaptureProp
         </button>
       </div>
 
-      <div className="flex flex-1 flex-col gap-4 overflow-y-auto px-4 py-4">
+      <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto px-4 py-4">
         <p className="text-sm text-text-secondary">{VIEW_INSTRUCTIONS[activeView]}</p>
 
-        <div className="relative mx-auto w-full max-w-3xl overflow-hidden rounded-xl border border-surface-border bg-black aspect-[4/3]">
+        <div className="relative mx-auto aspect-[4/3] w-full max-w-3xl max-h-[46dvh] overflow-hidden rounded-xl border border-surface-border bg-black">
           <video
             ref={videoRef}
             autoPlay
@@ -284,7 +297,7 @@ export const CameraCapture = ({ isOpen, onClose, onComplete }: CameraCaptureProp
         </div>
       </div>
 
-      <div className="border-t border-surface-border bg-surface-card/90 px-4 py-4 backdrop-blur-lg">
+      <div className="shrink-0 border-t border-surface-border bg-surface-card/90 px-4 py-4 backdrop-blur-lg">
         <div className="mx-auto flex w-full max-w-3xl items-center justify-between gap-3">
           <button
             className="rounded-lg px-4 py-2 text-sm font-bold text-white hover:bg-white/5"
